@@ -14,13 +14,13 @@ export class LetterInstructions2ClickedEvent extends ExperimentEvent {
 
 export class MathInstructions1ClickedEvent extends ExperimentEvent {
     constructor() {
-        super(ExperimentEventType.SENTENCE_INSTRUCTIONS1_CLICKED);
+        super(ExperimentEventType.MATH_INSTRUCTIONS1_CLICKED);
     }
 }
 
 export class MathInstructions2ClickedEvent extends ExperimentEvent {
     constructor() {
-        super(ExperimentEventType.SENTENCE_INSTRUCTIONS2_CLICKED);
+        super(ExperimentEventType.MATH_INSTRUCTIONS2_CLICKED);
     }
 }
 

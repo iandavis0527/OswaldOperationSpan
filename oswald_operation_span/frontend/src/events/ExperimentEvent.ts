@@ -6,12 +6,12 @@ export enum ExperimentEventType {
     HIDE_LETTER,
     SHOW_GRID,
     GRID_CONFIRMED,
-    SENTENCE_INSTRUCTIONS1_CLICKED,
-    SENTENCE_INSTRUCTIONS2_CLICKED,
-    SENTENCE_PRACTICE_STARTED,
-    SHOW_SENTENCE,
-    SENTENCE_READ,
-    SENTENCE_TIMED_OUT,
+    MATH_INSTRUCTIONS1_CLICKED,
+    MATH_INSTRUCTIONS2_CLICKED,
+    MATH_PRACTICE_STARTED,
+    SHOW_MATH,
+    MATH_READ,
+    MATH_TIMED_OUT,
     SENSE_PROMPT_RESPONDED,
     COMBINED_INSTRUCTIONS1_CLICKED,
     COMBINED_INSTRUCTIONS2_CLICKED,
@@ -41,14 +41,14 @@ export class SetFinishedEvent extends ExperimentEvent {
     readonly percentCorrect: number;
     readonly lettersCorrect: number;
     readonly setSize: number;
-    readonly sentenceErrors: number;
+    readonly mathErrors: number;
 
-    constructor(percentCorrect: number, lettersCorrect: number, setSize: number, sentenceErrors: number) {
+    constructor(percentCorrect: number, lettersCorrect: number, setSize: number, mathErrors: number) {
         super(ExperimentEventType.SET_FINISHED);
         this.percentCorrect = percentCorrect;
         this.lettersCorrect = lettersCorrect;
         this.setSize = setSize;
-        this.sentenceErrors = sentenceErrors;
+        this.mathErrors = mathErrors;
     }
 }
 

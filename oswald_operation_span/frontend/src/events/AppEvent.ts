@@ -3,7 +3,7 @@ import MathResult from "../results/MathResult";
 
 export enum AppEventType {
     FINISHED_PRACTICE_LETTERS,
-    FINISHED_PRACTICE_SENTENCE,
+    FINISHED_PRACTICE_MATH,
     FINISHED_PRACTICE_BOTH,
     FINISHED_EXPERIMENT,
 }
@@ -30,7 +30,7 @@ export class FinishedPracticeMathEvent extends AppEvent {
     readonly result: MathResult;
 
     constructor(result: MathResult) {
-        super(AppEventType.FINISHED_PRACTICE_SENTENCE);
+        super(AppEventType.FINISHED_PRACTICE_MATH);
         this.result = result;
     }
 }
@@ -50,13 +50,13 @@ export class FinishedPracticeBothEvent extends AppEvent {
 }
 
 export class FinishedExperimentEvent extends AppEvent {
-    readonly MathResult: MathResult;
+    readonly mathResult: MathResult;
     readonly letterResult: LetterResult;
 
-    constructor(MathResult: MathResult, letterResult: LetterResult) {
+    constructor(mathResult: MathResult, letterResult: LetterResult) {
         super(AppEventType.FINISHED_EXPERIMENT);
 
-        this.MathResult = MathResult;
+        this.mathResult = mathResult;
         this.letterResult = letterResult;
     }
 }

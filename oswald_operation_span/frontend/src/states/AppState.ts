@@ -21,7 +21,7 @@ export class PracticeLettersState extends AppState {
     }
 }
 
-export class PracticeMATHState extends AppState {
+export class PracticeMathState extends AppState {
     constructor() {
         super(AppStateType.PRACTICE_MATH);
     }

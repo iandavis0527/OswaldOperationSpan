@@ -37,7 +37,6 @@ export class PracticeLetterBloc extends Bloc<ExperimentEvent, ExperimentState> {
     }
 
     async* mapEventToState(event: ExperimentEvent): AsyncIterableIterator<ExperimentState> {
-        console.debug("Practice Letter Bloc got new event: " + ExperimentEventType[event.eventType]);
         switch (event.eventType) {
             case ExperimentEventType.LETTER_INSTRUCTIONS1_CLICKED:
                 yield new LetterInstructions2State();
@@ -59,7 +58,6 @@ export class PracticeLetterBloc extends Bloc<ExperimentEvent, ExperimentState> {
                 yield new ShowingGridState();
                 break;
             case ExperimentEventType.GRID_CONFIRMED:
-                console.debug("Adding inputs to result");
                 let properEvent = (event as GridConfirmedEvent);
                 let numberTotal = this.properLetters.length;
                 let numberCorrect = 0;
@@ -86,10 +84,8 @@ export class PracticeLetterBloc extends Bloc<ExperimentEvent, ExperimentState> {
 
     async mapPracticeEvent() {
         for (let i = 0; i < this.lettersToShow; i++) {
-            console.debug("Creating events for letter index " + i);
             let letter = letters[Math.floor(Math.random() * letters.length)];
             this.properLetters.push(letter);
-            console.debug("Adding Show Letter event for letter: " + letter + " at time " + new Date().getMilliseconds());
             this.add(new ShowLetterEvent(letter));
             await wait(1000);
             this.add(new HideLetterEvent());
@@ -107,10 +103,8 @@ export class PracticeLetterBloc extends Bloc<ExperimentEvent, ExperimentState> {
 
         if (this.cycles > 1) {
             this.cycles--;
-            console.debug("Still " + this.cycles + " left to go, starting again");
             this.add(new LetterPracticeStartedEvent());
         } else {
-            console.debug("Going to practice sentence state");
             this.appBloc.add(new FinishedPracticeLettersEvent(this.result));
         }
     }
