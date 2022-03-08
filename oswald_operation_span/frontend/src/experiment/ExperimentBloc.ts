@@ -7,7 +7,7 @@ import {
     StartExperimentEvent,
     StartPracticeBothEvent,
 } from "../events/ExperimentEvent";
-import {ExperimentState, ISIDelayState, SetFeedbackState} from "../states/ExperimentState";
+import {ExperimentState, SetFeedbackState, ISIDelayState} from "../states/ExperimentState";
 import {AppBloc} from "../AppBloc";
 import {
     CombinedInstructions1State,
@@ -15,18 +15,19 @@ import {
     CombinedInstructions3State, ExperimentStartScreenState
 } from "../states/InstructionsStates";
 import {shuffle} from "../utils/array_shuffle";
-import {SensePromptRespondedEvent, SentenceReadEvent, ShowSentenceEvent} from "../events/SentenceEvents";
-import {ShowingSensePromptState, ShowingSentenceState} from "../states/SentenceStates";
-import {SentenceResult} from "../results/SentenceResult";
+import {MathProblemRespondedEvent, MathReadEvent, ShowMathEvent} from "../events/MathEvents";
+import {ShowingMathProblem, ShowingMathAnswer, ShowingFeedbackState} from "../states/MathStates";
+import MathResult from "../results/MathResult";
 import {LetterResult} from "../results/LetterResult";
 import {GridConfirmedEvent, ShowGridEvent, ShowLetterEvent} from "../events/LetterEvents";
 import {wait} from "../utils/async";
 import {generateLetterSet} from "../stimuli/letters";
-import {generateSentenceSets, SentenceSetDescription} from "../stimuli/sentences";
+import generateMathSets from "../stimuli/math_problems";
 import {ShowingGridState, ShowingLetterState} from "../states/LetterStates";
 import {FinishedExperimentEvent, FinishedPracticeBothEvent} from "../events/AppEvent";
+import MathProblemDescription from "../stimuli/problem_description";
 
-// Practice shows 2 sets of 2 sentences and letters.
+// Practice shows 2 sets of 2 maths and letters.
 // Experiment shows 6 sets -- 2 of length 4, 2 of length 5 and 2 of length 6.
 // Total number of individual trials for the exp: 30.
 // Assuming an average reading time of 10 seconds (?) and average letter sequence choosing time of 5 seconds (?),
@@ -38,15 +39,17 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     private maxReadingTime: number = -1;
     private practice: boolean = false;
 
-    private sentenceSets: Array<Array<SentenceSetDescription>> = [];
+    private mathSets: Array<Array<MathProblemDescription>> = [];
     private letterSets: Array<Array<string>> = [];
     private currentSetIndex: number = 0;
     private currentSetOffset: number = 0;
+    private currentMathProblem: MathProblemDescription;
+    private currentMathReadingTime: number = 0;
 
-    private sentencesResult: SentenceResult = new SentenceResult();
+    private mathsResult: MathResult = new MathResult();
     private lettersResult: LetterResult = new LetterResult();
 
-    private currentTrialSentenceErrors: number = 0;
+    private currentTrialMathErrors: number = 0;
 
     constructor(appBloc: AppBloc,
                 initialState: ExperimentState = new CombinedInstructions1State(),) {
@@ -58,12 +61,13 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
         this.maxReadingTime = maxReadingTime;
         console.debug("Max reading time for this portion: " + this.maxReadingTime);
         this.practice = practice;
-        this.sentenceSets = [];
+        this.mathSets = [];
         this.letterSets = [];
-        this.sentencesResult = new SentenceResult();
+        this.mathsResult = new MathResult();
         this.lettersResult = new LetterResult();
         this.currentSetIndex = 0;
         this.currentSetOffset = 0;
+        this.currentMathReadingTime = 0;
 
         if (practice) {
             this.generatePracticeSets();
@@ -73,7 +77,9 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
             this.add(new StartExperimentEvent());
         }
 
-        console.assert(this.sentenceSets.length === this.letterSets.length);
+        this.currentMathProblem = this.mathSets[this.currentSetIndex][this.currentSetOffset];
+
+        console.assert(this.mathSets.length === this.letterSets.length);
     }
 
     async* mapEventToState(event: ExperimentEvent): AsyncIterableIterator<ExperimentState> {
@@ -94,37 +100,32 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
             case ExperimentEventType.EXPERIMENT_START_CLICKED:
                 this.nextTrial().then();
                 break;
-            case ExperimentEventType.SHOW_SENTENCE:
-                let sentenceEvent = (event as ShowSentenceEvent);
-                yield new ShowingSentenceState(
-                    sentenceEvent.sentence,
-                    sentenceEvent.expectedResponse,
-                    this.maxReadingTime);
+            case ExperimentEventType.SHOW_MATH:
+                yield new ShowingMathProblem(this.currentMathProblem.problem, this.maxReadingTime);
                 break;
-            case ExperimentEventType.SENTENCE_READ:
-                let readEvent = (event as SentenceReadEvent);
-                yield new ShowingSensePromptState(
-                    readEvent.sentence,
-                    readEvent.expectedResponse,
-                    readEvent.readingTimeMillis);
+            case ExperimentEventType.MATH_READ:
+                let readEvent = (event as MathReadEvent);
+                this.currentMathReadingTime = readEvent.readingTime;
+                yield new ShowingMathAnswer(this.currentMathProblem.expectedAnswer.toString());
                 break;
-            case ExperimentEventType.SENTENCE_TIMED_OUT:
-                // let timedOutEvent = (event as SentenceTimeoutEvent);
-                // TODO: Add the timeout event to the sentences result.
+            case ExperimentEventType.MATH_TIMED_OUT:
+                // let timedOutEvent = (event as MathTimeoutEvent);
+                // TODO: Add the timeout event to the maths result.
                 this.showLetter().then();
                 break;
-            case ExperimentEventType.SENSE_PROMPT_RESPONDED:
-                let sensePromptEvent = (event as SensePromptRespondedEvent);
-                console.debug("adding sentence input to result");
-                this.sentencesResult.addInput(
-                    sensePromptEvent.sentence,
-                    sensePromptEvent.response,
-                    sensePromptEvent.expectedResponse,
-                    sensePromptEvent.readingTimeMillis);
+            case ExperimentEventType.MATH_PROBLEM_RESPONDED:
+                let responseEvent = (event as MathProblemRespondedEvent);
+                console.debug("adding math input to result");
+                this.mathsResult.addInput(
+                    this.currentMathProblem.problem,
+                    this.currentMathProblem.prompt,
+                    this.currentMathProblem.expectedAnswer,
+                    responseEvent.answer,
+                    this.currentMathReadingTime);
 
-                if (sensePromptEvent.response !== sensePromptEvent.expectedResponse) {
-                    console.debug("Incorrect response, upping number of sentence errors");
-                    this.currentTrialSentenceErrors++;
+                if (responseEvent.answer !== this.currentMathProblem.expectedAnswer) {
+                    console.debug("Incorrect response, upping number of math errors");
+                    this.currentTrialMathErrors++;
                 }
 
                 this.showLetter().then();
@@ -150,26 +151,26 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     }
 
     async nextTrial() {
-        if (this.currentSetIndex >= this.sentenceSets.length) {
+        if (this.currentSetIndex >= this.mathSets.length) {
             if (this.practice) {
-                this.appBloc.add(new FinishedPracticeBothEvent(this.sentencesResult, this.lettersResult, this.maxReadingTime));
+                this.appBloc.add(new FinishedPracticeBothEvent(this.mathsResult, this.lettersResult, this.maxReadingTime));
             } else {
-                this.appBloc.add(new FinishedExperimentEvent(this.sentencesResult, this.lettersResult));
+                this.appBloc.add(new FinishedExperimentEvent(this.mathsResult, this.lettersResult));
             }
             return;
         }
 
-        if (this.currentSetOffset >= this.sentenceSets[this.currentSetIndex].length) {
+        if (this.currentSetOffset >= this.mathSets[this.currentSetIndex].length) {
             this.add(new ShowGridEvent());
             return;
         }
 
-        await this.showSentence().then();
+        await this.showMath().then();
     }
 
-    async showSentence() {
-        let sentenceDescription = this.sentenceSets[this.currentSetIndex][this.currentSetOffset];
-        this.add(new ShowSentenceEvent(sentenceDescription.sentence, sentenceDescription.expectedResponse));
+    async showMath() {
+        this.currentMathProblem = this.mathSets[this.currentSetIndex][this.currentSetOffset];
+        this.add(new ShowMathEvent());
     }
 
     async showLetter() {
@@ -209,15 +210,15 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
             }
         }
 
-        console.debug("number sentence trial errors: " + this.currentTrialSentenceErrors);
+        console.debug("number math trial errors: " + this.currentTrialMathErrors);
 
         this.add(new SetFinishedEvent(
-            this.sentencesResult.percentCorrect(),
+            this.mathsResult.percentCorrect(),
             numberCorrectLetters,
             expectedLetters.length,
-            this.currentTrialSentenceErrors));
+            this.currentTrialMathErrors));
 
-        this.currentTrialSentenceErrors = 0;
+        this.currentTrialMathErrors = 0;
 
         await wait(2000);
         this.add(new ISIDelayEvent());
@@ -226,15 +227,15 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     }
 
     generatePracticeSets() {
-        this.sentenceSets = generateSentenceSets([2, 2]);
+        this.mathSets = generateMathSets([2, 2], this.practice);
 
-        console.debug(this.sentenceSets);
+        console.debug(this.mathSets);
 
         for (let i=0; i < 2; i++) {
             this.letterSets.push(generateLetterSet(2));
         }
 
-        this.sentenceSets = shuffle(this.sentenceSets);
+        this.mathSets = shuffle(this.mathSets);
         this.letterSets = shuffle(this.letterSets);
     }
 
@@ -242,9 +243,9 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
         let setLengths = [4, 4, 5, 5, 6, 6];
         setLengths = shuffle(setLengths);
 
-        this.sentenceSets = generateSentenceSets(setLengths);
+        this.mathSets = generateMathSets(setLengths);
 
-        console.debug(this.sentenceSets);
+        console.debug(this.mathSets);
 
         for (let i=0; i < 6; i++) {
             let setLength = setLengths[i];

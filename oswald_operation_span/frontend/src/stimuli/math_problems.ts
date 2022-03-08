@@ -2,16 +2,13 @@ import { shuffle } from "../utils/array_shuffle";
 import { randomBoolean, randomInRange } from "../utils/random";
 import OPERATION_ONE from "./math_operation_one_stimuli.json";
 import OPERATION_TWO from "./math_operation_two_stimuli.json";
+import generatePracticeProblems from "./practice_problems";
+import MathProblemDescription from "./problem_description";
 
-export interface MathProblemDescription {
-    operationOne: string;
-    operationTwo: string;
-    sum: number;
-    expectedAnswer: boolean;
-    difficulty: string;
-}
 
-export default function generateMathSets(setLengths: Array<number>): Array<Array<MathProblemDescription>> {
+export default function generateMathSets(setLengths: Array<number>, practice: boolean = false): Array<Array<MathProblemDescription>> {
+    if (practice) return generatePracticeProblems(setLengths);
+
     let sets: Array<Array<MathProblemDescription>> = [];
     let firstOperation = shuffle(OPERATION_ONE);
     let secondOperation = shuffle(OPERATION_TWO);
@@ -34,9 +31,8 @@ export default function generateMathSets(setLengths: Array<number>): Array<Array
             }
 
             set.push({
-                operationOne: op1.op1,
-                operationTwo: op2.op2,
-                sum: answer,
+                problem: `${op1.op1} ${op2.symbol} ${op2.op2} = ?`,
+                prompt: answer,
                 expectedAnswer: isCorrect,
                 difficulty: op1.difficulty,
             });

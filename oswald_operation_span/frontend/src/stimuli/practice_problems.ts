@@ -1,28 +1,25 @@
 import PRACTICE_PROBLEMS from "./math_practice_solo.json";
-import { randomBoolean, randomInRange } from "../utils/random";
 import { shuffle } from "../utils/array_shuffle";
+import MathProblemDescription from "./problem_description";
 
-export interface MathPracticeDescription {
-    problem: string;
-    answer: number;
-    correctResponse: boolean;
-}
 
-export default function generatePracticeProblems(setLengths: Array<number>): Array < Array < MathPracticeDescription >> {
-    let sets: Array<Array<MathPracticeDescription>> = [];
+export default function generatePracticeProblems(setLengths: Array<number>): Array<Array<MathProblemDescription>> {
+    let sets: Array<Array<MathProblemDescription>> = [];
     let randomPractice = shuffle(PRACTICE_PROBLEMS);
     let currentOffset = 0;
 
     for (let i = 0; i < setLengths.length; i++) {
         let setLength = setLengths[i];
-        let set: Array<MathPracticeDescription> = [];
+        let set: Array<MathProblemDescription> = [];
 
         for (let j = 0; j < setLength; j++) {
             let problem = randomPractice[currentOffset];
+
             set.push({
                 problem: problem.problem,
-                answer: problem.answer,
-                correctResponse: problem.correctResp === "TRUE",
+                prompt: problem.answer,
+                expectedAnswer: problem.correctResp === "TRUE",
+                difficulty: "1",
             });
 
             currentOffset++;

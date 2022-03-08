@@ -1,4 +1,4 @@
-import {SetFinishedEvent} from "../events/ExperimentEvent";
+import { SetFinishedEvent } from "../events/ExperimentEvent";
 
 export enum ExperimentStateType {
     LETTER_INSTRUCTIONS1,
@@ -12,7 +12,7 @@ export enum ExperimentStateType {
     COMBINED_INSTRUCTIONS3,
     EXPERIMENT_START_SCREEN,
     SHOWING_MATH,
-    SHOWING_SENSE_PROMPT,
+    SHOWING_ANSWER,
     SHOWING_LETTER,
     MATH_FEEDBACK,
     HIDING_LETTER,
