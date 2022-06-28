@@ -10,6 +10,13 @@
             "env": {
                 "PYTHONPATH": "${workspaceRoot}"
             }
+        },
+        {
+            "command": "npm start",
+            "name": "OSPAN NPM",
+            "request": "launch",
+            "type": "node-terminal",
+            "cwd": "${workspaceFolder}/oswald_operation_span/frontend"
         }
     ]
 }
