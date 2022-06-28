@@ -1,18 +1,11 @@
 import argparse
-from itertools import product
 import json
-import os
 import pathlib
 
 import cherrypy
 
-
-# noinspection PyUnresolvedReferences
-from cherrypy_utils import authentication
 from cherrypy_utils import url_utils
 from cherrypy_utils.cherrypy_sqlalchemy_utils import SQLAlchemyTool, SQLAlchemyPlugin
-
-from oswald_reading_span.application import setup_server as setup_reading_span
 
 from digital_deception_emulator.backend.database import Base
 from digital_deception_emulator.backend.experiment.api import (
@@ -34,16 +27,22 @@ from digital_deception_emulator.backend.configuration import (
 )
 
 
-def setup_server(subdomain="/digital-deception", production=False):
+def setup_server(subdomain="/digital-deception", shared_data_location=None, production=False):
     server_directory = pathlib.Path(__file__).parent.absolute()
     cherrypy.log("looking for digital deception assets at {0}".format(server_directory))
     template_location = server_directory.joinpath("frontend", "templates").resolve()
     api_key_filepath = server_directory.joinpath("backend", "configuration", "api.key")
 
+    if not shared_data_location:
+        shared_data_location = server_directory
+
     application_data.initialize(
         subdomain=subdomain,
+        application_location=server_directory,
+        shared_data_location=shared_data_location,
         template_location=template_location,
         api_key_filepath=api_key_filepath,
+        produciton=production,
     )
 
     cherrypy._cpconfig.environments["production"]["log.screen"] = True
@@ -61,7 +60,7 @@ def setup_server(subdomain="/digital-deception", production=False):
         'Powered by <a href="http://www.cherrypy.org">CherryPy %(version)s</a>\n', ""
     )
     cherrypy.server.socket_host = "0.0.0.0"
-    cherrypy.tools.digital_deception_database = SQLAlchemyTool("digital_deception")
+    cherrypy.tools.oswald_operation_database = SQLAlchemyTool("oswald_operation")
 
     cherrypy.tree.mount(HomeView(), subdomain, active_file)
     cherrypy.tree.mount(PracticeView(), url_utils.combine_url(subdomain, "practice"), active_file)
@@ -76,17 +75,17 @@ def setup_server(subdomain="/digital-deception", production=False):
 
     # mysql connection:
     # mysql+pymysql://<username>:<password>@<host>/<dbname>[?<options>]
-    if os.path.exists(mysql_filepath):
+    if production and mysql_filepath.exists():
         with open(mysql_filepath, "r") as mysql_credentials_file:
             credentials = json.load(mysql_credentials_file)
             connection_string = str("mysql+pymysql://{username}:{password}@{host}/{db_name}").format_map(credentials)
     else:
         cherrypy.log("Using sqlite database file in lieu of mysql credentials!")
-        database_filepath = str(server_directory.joinpath("digital_deception.db").resolve())
+        database_filepath = str(pathlib.Path(shared_data_location, "digital_deception.db").resolve())
         connection_string = "sqlite:///" + database_filepath
 
     SQLAlchemyPlugin(
-        "digital_deception",
+        "oswald_operation",
         cherrypy.engine,
         Base,
         connection_string,
@@ -94,16 +93,23 @@ def setup_server(subdomain="/digital-deception", production=False):
         pool_recycle=20000,
     )
 
-    rspan_domain = url_utils.combine_url(subdomain, "rspan")
-    cherrypy.log("setting up rspan application at {0}".format(rspan_domain))
-    setup_reading_span(subdomain=rspan_domain, production=production)
-
     cherrypy.log("Publishing db create for digital_deception")
-    cherrypy.engine.publish("digital_deception.db.create")
+    cherrypy.engine.publish("oswald_operation.db.create")
 
 
-def run(production=False):
-    setup_server(production=production)
+def run(subdomain="/digital-deception/ospan", production=False, shared_data_location=None, port=8080):
+    old_mount_function = cherrypy.tree.mount
+
+    def _monkey_mount(handler, url, config_file):
+        cherrypy.log("Mounting URL {0}".format(url))
+        old_mount_function(handler, url, config_file)
+
+    cherrypy.tree.mount = _monkey_mount
+
+    setup_server(subdomain=subdomain, shared_data_location=shared_data_location, production=production)
+
+    cherrypy.log("setting server port to:" + str(port))
+    cherrypy.config.update({"server.socket_port": port})
 
     cherrypy.engine.signals.subscribe()
 
@@ -112,7 +118,15 @@ def run(production=False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Run the Digital Deception Emulator web server")
-    parser.add_argument("--production", action="store_true", help="Enable production mode")
+    parser = argparse.ArgumentParser("Run the Operation Span web server")
+    parser.add_argument("--subdomain", default="/digital-deception/rspan", help="The sub domain to mount the app at")
+    parser.add_argument("--production", default=False, action="store_true", help="Enable production mode")
+    parser.add_argument("--shared_data_location", help="The location of the root shared data folder")
+    parser.add_argument("--port", type=int, help="The port to listen on", default=8080)
     args = parser.parse_args()
-    run(production=args.production)
+    run(
+        subdomain=args.subdomain,
+        production=args.production,
+        shared_data_location=args.shared_data_location,
+        port=args.port,
+    )
