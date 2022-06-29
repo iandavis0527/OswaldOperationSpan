@@ -1,7 +1,7 @@
 import { ExperimentState, ExperimentStateType } from "./ExperimentState";
 
 
-export class ShowingMathProblem extends ExperimentState {
+export class ShowingProblemState extends ExperimentState {
     readonly mathProblem: string;
     readonly maxReadingTime?: number;
 
@@ -12,7 +12,7 @@ export class ShowingMathProblem extends ExperimentState {
     }
 }
 
-export class ShowingMathAnswer extends ExperimentState {
+export class ShowingAnswerState extends ExperimentState {
     readonly prompt: string;
 
     constructor(prompt: string) {
@@ -22,16 +22,10 @@ export class ShowingMathAnswer extends ExperimentState {
 }
 
 export class ShowingFeedbackState extends ExperimentState {
-    readonly operationOne: string;
-    readonly operationTwo: string;
-    readonly operand: string;
     readonly correct: boolean;
 
-    constructor(operationOne: string, operationTwo: string, operand: string, correct: boolean) {
+    constructor(correct: boolean) {
         super(ExperimentStateType.MATH_FEEDBACK);
-        this.operationOne = operationOne;
-        this.operationTwo = operationTwo;
-        this.operand = operand;
         this.correct = correct;
     }
 }

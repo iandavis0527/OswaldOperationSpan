@@ -1,8 +1,9 @@
-import './css/App.scss';
+import "./css/App.scss";
 
-function App() {
-    return <div className="App mdc-typography">
-        {/* <div className="App"> */}
+function TypographyPreview() {
+    return (
+        <div className="App mdc-typography">
+            {/* <div className="App"> */}
             <h1 className="mdc-typography--headline1">Header 1</h1>
             <h2 className="mdc-typography--headline2">Header 2</h2>
             <h3 className="mdc-typography--headline3">Header 3</h3>
@@ -13,11 +14,14 @@ function App() {
             <p className="mdc-typography--subtitle2">subtitle 2</p>
             <p className="mdc-typography--body1">body 1</p>
             <p className="mdc-typography--body2">body 2</p>
-            <button className="mdc-typography--button material-button">button</button>
+            <button className="mdc-typography--button material-button">
+                button
+            </button>
             <p className="mdc-typography--caption">caption</p>
             <p className="mdc-typography--overline">overline</p>
-        {/* </div> */}
-    </div>;
+            {/* </div> */}
+        </div>
+    );
 }
 
 export default App;

@@ -20,19 +20,19 @@ export class LetterInstructions3State extends ExperimentState {
 
 export class MathInstructions1State extends ExperimentState {
     constructor() {
-        super(ExperimentStateType.SENTENCE_INSTRUCTIONS1);
+        super(ExperimentStateType.MATH_INSTRUCTIONS1);
     }
 }
 
 export class MathInstructions2State extends ExperimentState {
     constructor() {
-        super(ExperimentStateType.SENTENCE_INSTRUCTIONS2);
+        super(ExperimentStateType.MATH_INSTRUCTIONS2);
     }
 }
 
 export class MathInstructions3State extends ExperimentState {
     constructor() {
-        super(ExperimentStateType.SENTENCE_INSTRUCTIONS3);
+        super(ExperimentStateType.MATH_INSTRUCTIONS3);
     }
 }
 

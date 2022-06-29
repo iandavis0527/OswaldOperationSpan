@@ -24,3 +24,15 @@ export class MathProblemRespondedEvent extends ExperimentEvent {
         this.answer = answer;
     }
 }
+
+export class MathFeedbackStartedEvent extends ExperimentEvent {
+    constructor() {
+        super(ExperimentEventType.MATH_FEEDBACK_STARTED);
+    }
+}
+
+export class MathFeedbackOverEvent extends ExperimentEvent {
+    constructor() {
+        super(ExperimentEventType.MATH_FEEDBACK_OVER);
+    }
+}

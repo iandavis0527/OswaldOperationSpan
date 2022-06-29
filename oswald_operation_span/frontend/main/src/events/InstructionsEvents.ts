@@ -24,6 +24,12 @@ export class MathInstructions2ClickedEvent extends ExperimentEvent {
     }
 }
 
+export class MathInstructions3ClickedEvent extends ExperimentEvent {
+    constructor() {
+        super(ExperimentEventType.MATH_INSTRUCTIONS3_CLICKED);
+    }
+}
+
 export class CombinedInstructions1ClickedEvent extends ExperimentEvent {
     constructor() {
         super(ExperimentEventType.COMBINED_INSTRUCTIONS1_CLICKED);

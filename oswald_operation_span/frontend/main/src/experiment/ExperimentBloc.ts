@@ -16,7 +16,7 @@ import {
 } from "../states/InstructionsStates";
 import {shuffle} from "../utils/array_shuffle";
 import {MathProblemRespondedEvent, MathReadEvent, ShowMathEvent} from "../events/MathEvents";
-import {ShowingMathProblem, ShowingMathAnswer, ShowingFeedbackState} from "../states/MathStates";
+import {ShowingProblemState, ShowingAnswerState, ShowingFeedbackState} from "../states/MathStates";
 import MathResult from "../results/MathResult";
 import {LetterResult} from "../results/LetterResult";
 import {GridConfirmedEvent, ShowGridEvent, ShowLetterEvent} from "../events/LetterEvents";
@@ -43,7 +43,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     private letterSets: Array<Array<string>> = [];
     private currentSetIndex: number = 0;
     private currentSetOffset: number = 0;
-    private currentMathProblem: MathProblemDescription;
+    private currentMathProblem: MathProblemDescription = {problem: "", prompt: 0, expectedAnswer: true, difficulty: '15'};
     private currentMathReadingTime: number = 0;
 
     private mathsResult: MathResult = new MathResult();
@@ -101,12 +101,12 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
                 this.nextTrial().then();
                 break;
             case ExperimentEventType.SHOW_MATH:
-                yield new ShowingMathProblem(this.currentMathProblem.problem, this.maxReadingTime);
+                yield new ShowingProblemState(this.currentMathProblem.problem, this.maxReadingTime);
                 break;
             case ExperimentEventType.MATH_READ:
                 let readEvent = (event as MathReadEvent);
                 this.currentMathReadingTime = readEvent.readingTime;
-                yield new ShowingMathAnswer(this.currentMathProblem.expectedAnswer.toString());
+                yield new ShowingAnswerState(this.currentMathProblem.expectedAnswer.toString());
                 break;
             case ExperimentEventType.MATH_TIMED_OUT:
                 // let timedOutEvent = (event as MathTimeoutEvent);

@@ -16,7 +16,7 @@
             "name": "OSPAN NPM",
             "request": "launch",
             "type": "node-terminal",
-            "cwd": "${workspaceFolder}/oswald_operation_span/frontend"
+            "cwd": "${workspaceFolder}/oswald_operation_span/frontend/main"
         }
     ]
 }

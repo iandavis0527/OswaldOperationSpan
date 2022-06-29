@@ -1,4 +1,5 @@
 import { std } from 'mathjs';
+import MathProblemDescription from '../stimuli/problem_description';
 
 export default class MathResult {
     public problems: Array<String> = [];
@@ -19,6 +20,10 @@ export default class MathResult {
         if (expectedAnswer == answer) {
             this.numberCorrect++;
         }
+    }
+
+    addMathProblem(problem: MathProblemDescription, answer: boolean, readingTime: number) {
+        this.addInput(problem.problem, problem.prompt, problem.expectedAnswer, answer, readingTime);
     }
 
     meanReadTime(): number {
