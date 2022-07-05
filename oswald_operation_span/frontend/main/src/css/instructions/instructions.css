@@ -1,5 +1,6 @@
 .instructions-container {
     text-align: center;
+    overflow-y: auto;
 }
 
 .instructions-title {
@@ -9,11 +10,15 @@
 .instructions-paragraph {
     font-size: min(38px, max(18px, 2vw));
     min-height: min(38px, max(18px, 2vw));
+    margin: 0;
 }
 
 .instructions-continue-prompt {
     padding: 20px;
     border: 1px solid gray;
+    min-height: 75px;
+    display: flex;
+    justify-content: center;
 }
 
 .prompt-disabled {

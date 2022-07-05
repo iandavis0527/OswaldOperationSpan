@@ -1,17 +1,15 @@
-import React from "react";
-
 export default function InstructionsPage(props) {
     let paragraphs = [];
 
     for (let i = 0; i < props.paragraphs.length; i++) {
         paragraphs.push(
-            <p
+            <div
                 className={"instructions-paragraph"}
                 id={"instruction-paragraph-" + i}
                 key={i}
             >
                 {props.paragraphs[i]}
-            </p>
+            </div>
         );
     }
 
@@ -25,14 +23,16 @@ export default function InstructionsPage(props) {
         props.continuePrompt !== null
     ) {
         continuePrompt = (
-            <p
+            <div
                 className={
                     "instructions-paragraph instructions-continue-prompt"
                 }
                 onClick={props.onInstructionsClicked}
             >
-                {props.continuePrompt}
-            </p>
+                <div className={"instructions-continue-text"}>
+                    {props.continuePrompt}
+                </div>
+            </div>
         );
     } else {
         containerOnClick = props.onInstructionsClicked;
@@ -48,11 +48,30 @@ export default function InstructionsPage(props) {
         title = <h1 className={"instructions-title"}>{props.title}</h1>;
     }
 
+    let additionalContainerClasses = "";
+
+    if (
+        props.additionalContainerClasses !== undefined &&
+        props.additionalContainerClasses !== null
+    ) {
+        additionalContainerClasses = props.additionalContainerClasses;
+    }
+
+    let minContainerHeight = 0;
+
+    if (props.minContainerHeight !== undefined) {
+        minContainerHeight = props.minContainerHeight;
+    }
+
     return (
         <div
-            className={"instructions-container fullscreen-centered-container"}
+            className={
+                "instructions-container fullscreen-centered-container " +
+                additionalContainerClasses
+            }
             id={"practice-letter-instructions-container"}
             onClick={containerOnClick}
+            style={{ minHeight: minContainerHeight }}
         >
             {title}
             {paragraphs}

@@ -167,8 +167,10 @@ instruction_texts = sorted(
 )
 
 
+instruction_texts = dict((instructions["name"], instructions["text"]) for instructions in instruction_texts)
 instruction_text_data = json.dumps(instruction_texts, indent=4)
 instruction_text_data = re.sub(r'"<p>(.*?)</p>"', r"<p>\1</p>", instruction_text_data)
+instruction_text_data = "export default " + instruction_text_data + ";"
 
 with open("instruction_texts.jsx", "w") as json_file:
     json_file.write(instruction_text_data)

@@ -1,0 +1,26 @@
+    .math-answer-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: min(48px, max(18px, 2vw));
+}
+
+.math-answer-prompt {
+    font-size: min(48px, max(18px, 3vw));
+    font-weight: bold;
+    margin-bottom: 75px;
+}
+
+.math-answer-response-container {
+    margin-left: 37.5%;
+    width: 25%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.math-answer-response-button {
+    border: 5px solid black;
+    min-width: 175px;
+}

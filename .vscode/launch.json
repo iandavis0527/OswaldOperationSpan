@@ -12,6 +12,17 @@
             }
         },
         {
+            "name": "Parse EPrime Stimuli",
+            "type": "python",
+            "request": "launch",
+            "module": "scripts.parse_eprime_stimuli",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}/scripts",
+            "env": {
+                "PYTHONPATH": "${workspaceRoot}"
+            }
+        },
+        {
             "command": "npm start",
             "name": "OSPAN NPM",
             "request": "launch",

@@ -1,4 +1,3 @@
-import React from "react";
 import { BlocBuilder } from "@felangel/react-bloc";
 import {
     ExperimentState,
@@ -49,10 +48,10 @@ export default function MathBlocBuilder(props: Record<string, any>) {
                             />
                         );
                     case ExperimentStateType.ISI_DELAY:
-                        return <div />;
+                        return <div className={"isi-delay-container"} />;
                     case ExperimentStateType.MATH_FEEDBACK:
                         return (
-                            <screen.MathFeedback
+                            <screen.MathFeedbackView
                                 feedback={
                                     (state as ShowingFeedbackState).correct
                                 }

@@ -1,7 +1,8 @@
 import React from "react";
-import "../../css/instructions.css";
+import "../../css/instructions/instructions.css";
 import InstructionsPage from "../../components/InstructionsPage";
 import { MathInstructions3ClickedEvent } from "../../events/InstructionsEvents";
+import instruction_texts from "../../stimuli/instruction_texts";
 
 export class MathInstructions3 extends React.Component {
     constructor(props) {
@@ -16,10 +17,8 @@ export class MathInstructions3 extends React.Component {
                 onInstructionsClicked={this.onInstructionsClicked}
                 continuePrompt={"Click in this box to continue."}
                 title={"INSTRUCTIONS"}
-                paragraphs={[
-                    "In this portion of the experiment you will try to memorize letters you see on the screen while you also read sentences.",
-                    "In the next few minutes, you will have some practice to get you familiar with how the task works.",
-                ]}
+                paragraphs={instruction_texts.PractMathInst3}
+                minContainerHeight={200}
             />
         );
     }
