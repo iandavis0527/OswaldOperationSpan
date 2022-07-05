@@ -45,9 +45,7 @@ function App(props: AppConfig) {
     const timestamp = new Date();
 
     const appBloc = new AppBloc(
-        props.initialAppState
-            ? props.initialAppState
-            : new RunningExperimentState(),
+        props.initialAppState ? props.initialAppState : new PracticeBothState(),
         packageInfo.version,
         props.subjectId ? props.subjectId : "missing-subject-id",
         timestamp,

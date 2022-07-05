@@ -26,6 +26,7 @@ import generateMathSets from "../stimuli/math_problems";
 import {ShowingGridState, ShowingLetterState} from "../states/LetterStates";
 import {FinishedExperimentEvent, FinishedPracticeBothEvent} from "../events/AppEvent";
 import MathProblemDescription from "../stimuli/problem_description";
+import { CombinedInstructions1ClickedEvent } from "../events/InstructionsEvents";
 
 // Practice shows 2 sets of 2 maths and letters.
 // Experiment shows 6 sets -- 2 of length 4, 2 of length 5 and 2 of length 6.
@@ -39,6 +40,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     private maxReadingTime: number = -1;
     private practice: boolean = false;
 
+    private practiceMathSets: Array<Array<MathProblemDescription>> = [];
     private mathSets: Array<Array<MathProblemDescription>> = [];
     private letterSets: Array<Array<string>> = [];
     private currentSetIndex: number = 0;
@@ -61,7 +63,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
         this.maxReadingTime = maxReadingTime;
         console.debug("Max reading time for this portion: " + this.maxReadingTime);
         this.practice = practice;
-        this.mathSets = [];
+        // this.mathSets = [];
         this.letterSets = [];
         this.mathsResult = new MathResult();
         this.lettersResult = new LetterResult();
@@ -77,9 +79,8 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
             this.add(new StartExperimentEvent());
         }
 
-        this.currentMathProblem = this.mathSets[this.currentSetIndex][this.currentSetOffset];
-
-        console.assert(this.mathSets.length === this.letterSets.length);
+        this.currentMathProblem = this.getMathProblem();
+        console.assert(this.getCurrentMathSets().length === this.letterSets.length);
     }
 
     async* mapEventToState(event: ExperimentEvent): AsyncIterableIterator<ExperimentState> {
@@ -151,7 +152,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     }
 
     async nextTrial() {
-        if (this.currentSetIndex >= this.mathSets.length) {
+        if (this.currentSetIndex >= this.getCurrentMathSets().length) {
             if (this.practice) {
                 this.appBloc.add(new FinishedPracticeBothEvent(this.mathsResult, this.lettersResult, this.maxReadingTime));
             } else {
@@ -160,7 +161,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
             return;
         }
 
-        if (this.currentSetOffset >= this.mathSets[this.currentSetIndex].length) {
+        if (this.currentSetOffset >= this.getCurrentMathSets()[this.currentSetIndex].length) {
             this.add(new ShowGridEvent());
             return;
         }
@@ -169,7 +170,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
     }
 
     async showMath() {
-        this.currentMathProblem = this.mathSets[this.currentSetIndex][this.currentSetOffset];
+        this.currentMathProblem = this.getMathProblem();
         this.add(new ShowMathEvent());
     }
 
@@ -226,16 +227,32 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
         await this.nextTrial();
     }
 
-    generatePracticeSets() {
-        this.mathSets = generateMathSets([2, 2], this.practice);
+    getCurrentMathSets() {
+        if (this.practice) {
+            return this.practiceMathSets;
+        } else {
+            return this.mathSets;
+        }
+    }
 
-        console.debug(this.mathSets);
+    getMathProblem() {
+        if (this.practice) {
+            return this.practiceMathSets[this.currentSetIndex][this.currentSetOffset];
+        } else {
+            return this.mathSets[this.currentSetIndex][this.currentSetOffset];
+        }
+    }
+
+    generatePracticeSets() {
+        this.practiceMathSets = generateMathSets([2, 2]);
+
+        // console.debug(this.practiceMathSets);
 
         for (let i=0; i < 2; i++) {
             this.letterSets.push(generateLetterSet(2));
         }
 
-        this.mathSets = shuffle(this.mathSets);
+        this.practiceMathSets = shuffle(this.practiceMathSets);
         this.letterSets = shuffle(this.letterSets);
     }
 
@@ -243,9 +260,12 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
         let setLengths = [4, 4, 5, 5, 6, 6];
         setLengths = shuffle(setLengths);
 
-        this.mathSets = generateMathSets(setLengths);
+        console.debug("Filtering out math sets from pratice both session: ");
+        // console.debug(this.practiceMathSets.flat());
 
-        console.debug(this.mathSets);
+        this.mathSets = generateMathSets(setLengths, this.practiceMathSets.flat());
+
+        // console.debug(this.getCurrentMathSets().flat());
 
         for (let i=0; i < 6; i++) {
             let setLength = setLengths[i];
