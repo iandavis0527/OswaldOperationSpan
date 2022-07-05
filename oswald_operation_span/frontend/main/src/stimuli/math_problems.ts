@@ -22,7 +22,7 @@ export default function generateMathSets(setLengths: Array<number>, practice: bo
         for (let j = 0; j < setLength; j++) {
             let op1 = firstOperation[currentOffset];
             let op2 = secondOperation[currentOffset2];
-            let answer = op1.sum + op2.sum;
+            let answer = op1.sum + op2.sum2;
 
             let isCorrect = randomBoolean();
 
@@ -31,7 +31,7 @@ export default function generateMathSets(setLengths: Array<number>, practice: bo
             }
 
             set.push({
-                problem: `${op1.op1} ${op2.symbol} ${op2.op2} = ?`,
+                problem: `${op1.op1} ${op2.sign} ${op2.op2} = ?`,
                 prompt: answer,
                 expectedAnswer: isCorrect,
                 difficulty: op1.difficulty,

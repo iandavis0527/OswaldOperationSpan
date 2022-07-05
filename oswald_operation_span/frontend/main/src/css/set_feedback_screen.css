@@ -1,0 +1,21 @@
+.set-feedback-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.set-feedback-percentage {
+    margin-top: 15px;
+    color: red;
+    font-size: min(38px, max(18px, 3vw));
+    font-weight: bold;
+    text-align: right;
+    flex: 3;
+}
+
+.set-feedback-letters, .set-feedback-problems {
+    font-size: min(38px, max(18px, 3vw));
+    flex: 2;
+}

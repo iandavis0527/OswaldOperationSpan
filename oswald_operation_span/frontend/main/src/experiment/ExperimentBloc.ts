@@ -106,7 +106,7 @@ export class ExperimentBloc extends Bloc<ExperimentEvent, ExperimentState> {
             case ExperimentEventType.MATH_READ:
                 let readEvent = (event as MathReadEvent);
                 this.currentMathReadingTime = readEvent.readingTime;
-                yield new ShowingAnswerState(this.currentMathProblem.expectedAnswer.toString());
+                yield new ShowingAnswerState(this.currentMathProblem.prompt.toString());
                 break;
             case ExperimentEventType.MATH_TIMED_OUT:
                 // let timedOutEvent = (event as MathTimeoutEvent);

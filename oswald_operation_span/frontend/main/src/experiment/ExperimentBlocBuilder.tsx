@@ -5,6 +5,7 @@ import { ShowingLetterState } from "../states/LetterStates";
 import {
     ExperimentState,
     ExperimentStateType,
+    SetFeedbackState,
 } from "../states/ExperimentState";
 import LetterGridView from "../letters/LetterGridView";
 import LetterView from "../letters/LetterView";
@@ -19,6 +20,7 @@ import {
 } from "../states/MathStates";
 
 import * as screen from "../math/screens.js";
+import { SetFeedbackScreen } from "./SetFeedbackScreen";
 
 export default function ExperimentBlocBuilder(props: Record<string, any>) {
     return (
@@ -81,6 +83,19 @@ export default function ExperimentBlocBuilder(props: Record<string, any>) {
                                     (state as ShowingFeedbackState).correct
                                 }
                                 bloc={props.bloc}
+                            />
+                        );
+                    case ExperimentStateType.SET_FEEDBACK:
+                        let feedbackState = state as SetFeedbackState;
+                        return (
+                            <SetFeedbackScreen
+                                lettersCorrect={feedbackState.lettersCorrect}
+                                problemsCorrect={
+                                    feedbackState.setSize -
+                                    feedbackState.mathErrors
+                                }
+                                setSize={feedbackState.setSize}
+                                percentageCorrect={feedbackState.percentCorrect}
                             />
                         );
                     default:
