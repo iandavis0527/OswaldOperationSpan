@@ -96,34 +96,8 @@ The docker image is built on top of the CherrypyDocker image: https://github.com
 If you build and run the docker container here using `build_docker_container.py`, the server will run by default on port 5001. This is an implementation detail of the server architecture of the original experiment. You can change this by editing `build_docker_container.py` or building your own docker deploy script.
 
 NOTE: Cherrypy is classed as a production ready http server by itself, which is what these docker images use. However, cherrypy supports being run as a WSGI application using mod-wsgi with most common web servers.
-Result Data
-Structure definitions for result data are contained both in the frontend and backend code. In the frontend, they are located in `/common/src/network/serialized_data/`. In the backend, you can find them in `/models/`. There are some asymmetries between the two implementations, mainly due to SQL database structure requirements.
 
-A loose overview of the result data structure (defined in the frontend) is as follows:
-
-Result 
-* `subjectId`: string
-* `experimentVersion`: string
-* `timestamp`: unix timestamp
-* `letter_result`: LetterResult
-
-LetterResult
-* `sentence_result`: SentenceResult
-* `proper_letters`: Array\<Array\<String>>
-* `chosen_letters`: Array\<Array\<String>>
-* `number_correct`: number
-* `total_letters`: number
-
-SentenceResult
-* `sentences`: Array\<String>
-* `responses`: Array\<boolean | null> // Can be null in the case that the user didn’t respond within the maximum reading time.
-* `expected_response`: Array\<boolean>
-* `reading_times`: Array\<number | null> // Can be null in the case that the user didn’t respond within the maximum reading time.
-* `average_rt_millis`: number
-* `number_correct`: number
-* `speed_errors`: number
-
-NOTE: Network storage of results was not tested on low-bandwidth connections like cellular. There is currently no robust retry logic in the code for uploading results, so if a network error occurs causing timeout or other issue, the results will not be uploaded.
+Results are not currently stored and only tracked/implemented in the javascript frontend.
 
 # Database
 The span task uses SQLAlchemy for database management, so most common SQL backends are supported (MySQL, PostreSQL, SQLite, etc). By default, the application has support for SQLite and MySQL, and determines which to use based on the production flag passed to the server and the existence of a mysql.credentials file, describing the connection to the MySQL Server. This file should be a single JSON object with keys username, password, host, db_name and live in /oswald_reading_span/backend/configuration/. 
